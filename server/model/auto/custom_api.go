@@ -8,7 +8,7 @@ import (
 // CustomApi 结构体  CustomApi
 type CustomApi struct {
 	global.GVA_MODEL
-	ApiName     string `json:"apiName" form:"apiName" gorm:"primarykey;column:api_name;comment:;" binding:"required"`  //api名称
+	ApiName     string `json:"apiName" form:"apiName" gorm:"primary-key;column:api_name;comment:;" binding:"required"` //api名称
 	Api         string `json:"api" form:"api" gorm:"column:api;comment:;" binding:"required"`                          //api
 	Desc        string `json:"desc" form:"desc" gorm:"column:desc;comment:;" binding:"required"`                       //描述
 	Method      string `json:"method" form:"method" gorm:"column:method;comment:;" binding:"required"`                 //请求类型

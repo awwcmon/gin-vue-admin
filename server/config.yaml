@@ -193,7 +193,7 @@ sqlite:
     singular: false
     log-zap: false
 system:
-    domain: "localhost:8080"
+    domain: "http://localhost:8080"
     db-type: mysql
     oss-type: local
     router-prefix: ""

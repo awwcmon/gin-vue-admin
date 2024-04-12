@@ -1,10 +1,15 @@
 package auto
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/auto"
 	autoReq "github.com/flipped-aurora/gin-vue-admin/server/model/auto/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"io"
+	"net/http"
 )
 
 type CustomApiService struct {
@@ -83,11 +88,39 @@ func (customApiService *CustomApiService) GetCustomApiInfoList(info autoReq.Cust
 	return customApis, total, err
 }
 
-func (customApiService *CustomApiService) Execute(customApi *auto.CustomApi, token string) response.Response {
-	return response.Response{}
-	//var body map[string]interface{}
-	//if customApi.ParamConfig != "" {
-	//	body = json.Unmarshal([]byte(customApi.ParamConfig), &customApi.ParamConfig)
-	//}
-	//url := global.GVA_CONFIG.System.DbType
+func (customApiService *CustomApiService) Execute(customApi *auto.CustomApi, token string) (resp response.Response, err error) {
+	//return response.Response{}
+	var body map[string]interface{}
+	var bodybytes []byte
+	if customApi.ParamConfig != "" {
+		err := json.Unmarshal([]byte(customApi.ParamConfig), &body)
+		if err != nil {
+
+			return response.Response{}, err
+		}
+		bodybytes, err = json.Marshal(body)
+		if err != nil {
+			return response.Response{}, err
+		}
+	}
+	url := global.GVA_CONFIG.System.Domain + customApi.Api
+	fmt.Println(url)
+	req, err := http.NewRequest(customApi.Method, url, bytes.NewReader(bodybytes))
+	if err != nil {
+		return response.Response{}, err
+	}
+	req.Header.Add("x-token", token)
+	req.Header.Add("content-type", "application/json")
+	respd, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return response.Response{}, err
+	}
+	defer respd.Body.Close()
+	bodyBytes, _ := io.ReadAll(respd.Body)
+	var res response.Response
+	err = json.Unmarshal(bodyBytes, &res)
+	if err != nil {
+		return response.Response{}, err
+	}
+	return res, err
 }

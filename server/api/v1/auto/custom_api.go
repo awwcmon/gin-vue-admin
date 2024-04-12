@@ -174,7 +174,12 @@ func (customApiApi *CustomApiApi) Execute(c *gin.Context) {
 		return
 	}
 
-	resp := customApiService.Execute(&customApi, c.Request.Header.Get("x-token"))
+	resp, err := customApiService.Execute(&customApi, c.Request.Header.Get("x-token"))
+	if err != nil {
+		global.GVA_LOG.Error("execute fail", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
 	response.Result(resp.Code, resp.Data, resp.Msg, c)
 
 }
